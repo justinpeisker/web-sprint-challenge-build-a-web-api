@@ -33,13 +33,13 @@ router.get('/:id', (req,res) => {
 })
 
 router.post('/', (req,res) => {
-    const { name, description } = req.body
+    const { name, description, completed } = req.body
     if(!name || !description){
         res.status(400).json({
             message: "Name and description are required!"
         })
     } else {
-        Projects.insert({name, description})
+        Projects.insert({name, description, completed})
         .then(({id}) => {
             return Projects.get(id)
         })
@@ -56,7 +56,7 @@ router.post('/', (req,res) => {
 
 router.put('/:id', (req,res) => {
     const { name, description, completed } = req.body
-    if(!name || !description || !completed){
+    if(!name || !description){
         res.status(400).json({
             message: "Name and description are required!"
         })
