@@ -147,7 +147,30 @@ We have provided test data for all the resources.
 Be prepared to demonstrate your understanding of this week's concepts by answering questions on the following topics. You might prepare by writing down your own answers before hand.
 
 1. The core features of Node.js and Express and why they are useful.
+
+    Core features/benefits of Node.js:
+      - Essentially javascript for your backend.  Which means it can quite easily communicate with client-side javascript code
+      - Allows you to install NPM to allow the usefulness of other node packages
+    Core features/benefits of Express:
+      - Express is an extremely popular and usefule Node framework
+      - It allows you to use various middlewares
+      - It allows you to use routing based on HTTP methods
+      - It aids you in creating a RESTful API
+
+
 1. Understand and explain the use of Middleware.
+
+    Middleware allows the developer to eliminate redundencies and keep their code DRY.  A piece of code that is repetitive in multiple functions and accopmlishes a very similar task, can be written as middleware and then implemented where appropriate. 
+
 1. The basic principles of the REST architectural style.
+
+    REST is a architectural style that allows clients and servers to communicate with each other.  REST uses uniform resource identifiers and helps developers design API's in a uniform way.
+
 1. Understand and explain the use of Express Routers.
+
+    Express Routers allow you to organize your backend code.  It allows you to modularize your code in to smaller files and bits.  It makes your code easier to maintain and read
+
+
 1. Describe tooling used to manually test the correctness of an API.
+
+    Some of the manual tools for testing API correctness include HTTPie and postman.  They allow you to manually input your endpoints and see if the response is what you and your code had intended.
