@@ -33,18 +33,18 @@ router.get('/:id', (req,res) => {
 })
 
 router.post('/', (req,res) => {
-    const { project_id, description, notes } = req.body
+    const { project_id, description, notes, completed } = req.body
     if(!project_id || !description || !notes){
         res.status(400).json({
             message: "Project id, description, and notes are required!"
         })
     } else {
-        Projects.insert({project_id, description, notes})
+        Actions.insert({project_id, description, notes, completed})
         .then(({id}) => {
-            return Projects.get(id)
+            return Actions.get(id)
         })
-        .then(newProject => {
-            res.status(201).json(newProject)
+        .then(newAction => {
+            res.status(201).json(newAction)
         })
         .catch(err => {
             res.status(500).json({
@@ -55,35 +55,35 @@ router.post('/', (req,res) => {
 })
 
 router.put('/:id', (req,res) => {
-    const { name, description, completed } = req.body
-    if(!name || !description || !completed){
+    const { project_id, description, notes, completed } = req.body
+    if(!project_id || !description || !notes){
         res.status(400).json({
             message: "Name and description are required!"
         })
     } else {
-       Projects.get(req.params.id)
+       Actions.get(req.params.id)
        .then(validID => {
            if(!validID){
                res.status(404).json({
                    message: "Project with that ID not found!"
                })
            } else {
-               return Projects.update(req.params.id, req.body)
+               return Actions.update(req.params.id, req.body)
            }
        })
        .then(project => {
            if(project){
-               return Projects.get(req.params.id)
+               return Actions.get(req.params.id)
             } 
        })
-       .then(updatedProject => {
-           if(updatedProject){
-               res.json(updatedProject)
+       .then(updatedAction => {
+           if(updatedAction){
+               res.json(updatedAction)
            }
        })
        .catch(err => {
             res.status(500).json({
-                message: "Problem updating your projects!",
+                message: "Problem updating your actions!",
             })
         })
     }
