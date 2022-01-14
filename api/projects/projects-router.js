@@ -56,9 +56,9 @@ router.post('/', (req,res) => {
 
 router.put('/:id', (req,res) => {
     const { name, description, completed } = req.body
-    if(!name || !description){
+    if(!name || !description && !completed){
         res.status(400).json({
-            message: "Name and description are required!"
+            message: "Name, description and completion status are required!"
         })
     } else {
        Projects.get(req.params.id)
