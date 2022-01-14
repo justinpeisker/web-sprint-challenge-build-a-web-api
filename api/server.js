@@ -11,6 +11,10 @@ server.get('/', (req, res) =>{
     res.send('Hello, just testing :)')
 })
 
-
+server.use((err, req, res, next) => {
+    res.status(err.status || 500).json({
+      message: `Oops: ${err.message}`,
+    })
+  })
 
 module.exports = server;

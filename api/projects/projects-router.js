@@ -1,38 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const Projects = require('./projects-model');
+const {projectIdValidation} = require('./projects-middleware')
 
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
     Projects.get()
     .then(foundProjects => {
         res.json(foundProjects)
     })
-    .catch(err => {
-        res.status(500).json({
-            message: "Problem retreiving projects!",
-        })
-    }) 
+    .catch(next) 
 })
 
-router.get('/:id', (req,res) => {
+router.get('/:id', projectIdValidation,(req, res, next) => {
     Projects.get(req.params.id)
     .then(project => {
-        if(project){
-            res.status(200).json(project)
-        } else {
-            res.status(404).json({
-                message: "Cannot find a project with that id!"
-            })
-        }
+        res.status(200).json(project)
     })
-    .catch(err => {
-        res.status(500).json({
-            message: "Problem retreiving your projects!",
-        })
-    })
+    .catch(next)
 })
 
-router.post('/', (req,res) => {
+router.post('/', (req, res, next) => {
     const { name, description, completed } = req.body
     if(!name || !description){
         res.status(400).json({
@@ -46,30 +33,20 @@ router.post('/', (req,res) => {
         .then(newProject => {
             res.status(201).json(newProject)
         })
-        .catch(err => {
-            res.status(500).json({
-                message: "Problem adding your project!",
-            })
-        })    
+        .catch(next)    
     }
 })
 
-router.put('/:id', (req,res) => {
+router.put('/:id', projectIdValidation, (req, res, next) => {
     const { name, description, completed } = req.body
-    if(!name || !description && !completed){
+    if(!name || !description){
         res.status(400).json({
             message: "Name, description and completion status are required!"
         })
     } else {
        Projects.get(req.params.id)
-       .then(validID => {
-           if(!validID){
-               res.status(404).json({
-                   message: "Project with that ID not found!"
-               })
-           } else {
-               return Projects.update(req.params.id, req.body)
-           }
+       .then(() => {
+            return Projects.update(req.params.id, req.body)
        })
        .then(project => {
            if(project){
@@ -81,49 +58,27 @@ router.put('/:id', (req,res) => {
                res.json(updatedProject)
            }
        })
-       .catch(err => {
-            res.status(500).json({
-                message: "Problem updating your projects!",
-            })
-        })
+       .catch(next)
     }
 })
 
-router.delete('/:id', async (req,res) => {
+router.delete('/:id', projectIdValidation, async (req, res, next) => {
     try{
-        const project = await Projects.get(req.params.id)
-        if(!project){
-            res.status(404).json({
-                message: "The project with that ID does not exist!"
-            })
-        } else {
-            const deletedProject = await Projects.remove(req.params.id)
-            res.json(project)
-        }
+        const deletedProject = await Projects.remove(req.params.id)
+        res.json(project)
     }
     catch (err) {
-        res.status(500).json({
-            message: "Problem updating your projects!",
-        })
+        next(err)
     }
 })
 
-router.get('/:id/actions', async (req,res) => {
+router.get('/:id/actions', projectIdValidation, async (req, res, next) => {
     try{
-        const project = await Projects.get(req.params.id)
-        if(!project){
-            res.status(404).json({
-                message: "The project with that ID does not exist!"
-            })
-        } else {
-            const actions = await Projects.getProjectActions(req.params.id)
-            res.json(actions)
-        }
+        const actions = await Projects.getProjectActions(req.params.id)
+        res.json(actions)
     }
     catch (err) {
-        res.status(500).json({
-            message: "Problem retrieving your projects!",
-        })
+       next(err)
     }
 })
 module.exports = router

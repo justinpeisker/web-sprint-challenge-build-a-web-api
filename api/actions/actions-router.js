@@ -1,38 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const Actions = require('./actions-model');
+const { actionIdValidation } = require('./actions-middlware')
 
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
     Actions.get()
     .then(foundActions => {
         res.json(foundActions)
     })
-    .catch(err => {
-        res.status(500).json({
-            message: "Problem retreiving actions!",
-        })
-    }) 
+    .catch(next) 
 })
 
-router.get('/:id', (req,res) => {
+router.get('/:id', actionIdValidation, (req, res, next) => {
     Actions.get(req.params.id)
     .then(action => {
-        if(action){
-            res.status(200).json(action)
-        } else {
-            res.status(404).json({
-                message: "Cannot find a action with that id!"
-            })
-        }
+        res.json(action)
     })
-    .catch(err => {
-        res.status(500).json({
-            message: "Problem retreiving your actions!",
-        })
-    })
+    .catch(next)
 })
 
-router.post('/', (req,res) => {
+router.post('/', (req, res, next) => {
     const { project_id, description, notes, completed } = req.body
     if(!project_id || !description || !notes){
         res.status(400).json({
@@ -46,15 +33,11 @@ router.post('/', (req,res) => {
         .then(newAction => {
             res.status(201).json(newAction)
         })
-        .catch(err => {
-            res.status(500).json({
-                message: "Problem adding your project!",
-            })
-        })    
+        .catch(next)    
     }
 })
 
-router.put('/:id', (req,res) => {
+router.put('/:id', actionIdValidation, (req, res, next) => {
     const { project_id, description, notes, completed } = req.body
     if(!project_id || !description || !notes){
         res.status(400).json({
@@ -62,17 +45,11 @@ router.put('/:id', (req,res) => {
         })
     } else {
        Actions.get(req.params.id)
-       .then(validID => {
-           if(!validID){
-               res.status(404).json({
-                   message: "Project with that ID not found!"
-               })
-           } else {
-               return Actions.update(req.params.id, req.body)
-           }
-       })
+       .then(() => {
+            return Actions.update(req.params.id, req.body)
+        })
        .then(project => {
-           if(project){
+            if(project){
                return Actions.get(req.params.id)
             } 
        })
@@ -81,30 +58,17 @@ router.put('/:id', (req,res) => {
                res.json(updatedAction)
            }
        })
-       .catch(err => {
-            res.status(500).json({
-                message: "Problem updating your actions!",
-            })
-        })
+       .catch(next)
     }
 })
 
-router.delete('/:id', async (req,res) => {
+router.delete('/:id',actionIdValidation, async (req, res, next) => {
     try{
-        const action = await Actions.get(req.params.id)
-        if(!action){
-            res.status(404).json({
-                message: "The action with that ID does not exist!"
-            })
-        } else {
-            const deletedAction = await Actions.remove(req.params.id)
-            res.json(action)
-        }
+        const deletedAction = await Actions.remove(req.params.id)
+        res.json(deletedAction)
     }
     catch (err) {
-        res.status(500).json({
-            message: "Problem updating your actions!",
-        })
+       next(err)
     }
 })
 
